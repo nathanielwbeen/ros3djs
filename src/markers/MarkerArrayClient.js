@@ -40,14 +40,15 @@ ROS3D.MarkerArrayClient = function(options) {
 ROS3D.MarkerArrayClient.prototype.__proto__ = EventEmitter2.prototype;
 
 ROS3D.MarkerArrayClient.prototype.checkTime = function(name){
-  var curTime = new Date().getTime();
-  if (curTime - this.updatedTime[name] > this.lifetime) {
+  if (this.markers[name] && this.updatedTime[name]) {
+    var curTime = new Date().getTime();
+    if (curTime - this.updatedTime[name] > this.lifetime) {
       this.removeMarker(name);
       this.emit('change');
-  } else {
+    } else {
       var that = this;
-      setTimeout(function() {that.checkTime(name);},
-                 100);
+      setTimeout(function() {that.checkTime(name);}, 100);
+    }
   }
 };
 
@@ -67,9 +68,13 @@ ROS3D.MarkerArrayClient.prototype.subscribe = function(){
 ROS3D.MarkerArrayClient.prototype.processMessage = function(arrayMessage){
   arrayMessage.markers.forEach(function(message) {
     var key = message.ns + message.id;
+    var oldNode = this.markers[key];
+    if (oldNode) {
+      this.removeMarker(key);
+    }
 
-    this.updatedTime[key] = new Date().getTime();
     if (this.lifetime) {
+      this.updatedTime[key] = new Date().getTime();
       this.checkTime(key);
     }
 
@@ -121,6 +126,9 @@ ROS3D.MarkerArrayClient.prototype.unsubscribe = function(){
 };
 
 ROS3D.MarkerArrayClient.prototype.removeMarker = function(key) {
+  if (this.lifetime) {
+    this.removeTimestamp(key);
+  }
   var oldNode = this.markers[key];
   if(!oldNode) {
     return;
@@ -132,3 +140,9 @@ ROS3D.MarkerArrayClient.prototype.removeMarker = function(key) {
   });
   delete(this.markers[key]);
 };
+
+ROS3D.MarkerArrayClient.prototype.removeTimestamp = function(key) {
+  if (this.updatedTime[key]) {
+    delete(this.updatedTime[key]);
+  }
+}
