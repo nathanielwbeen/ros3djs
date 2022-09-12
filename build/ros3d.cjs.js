@@ -55329,10 +55329,12 @@ var MarkerArrayClient = /*@__PURE__*/(function (EventEmitter2) {
     this.tfClient = options.tfClient;
     this.rootObject = options.rootObject || new THREE.Object3D();
     this.path = options.path || '/';
+    this.lifetime = options.lifetime || 0;
 
     // Markers that are displayed (Map ns+id--Marker)
     this.markers = {};
     this.rosTopic = undefined;
+    this.updatedTime = {};
 
     this.subscribe();
   }
@@ -55340,6 +55342,18 @@ var MarkerArrayClient = /*@__PURE__*/(function (EventEmitter2) {
   if ( EventEmitter2 ) MarkerArrayClient.__proto__ = EventEmitter2;
   MarkerArrayClient.prototype = Object.create( EventEmitter2 && EventEmitter2.prototype );
   MarkerArrayClient.prototype.constructor = MarkerArrayClient;
+  MarkerArrayClient.prototype.checkTime = function checkTime (name){
+    if (this.markers[name] && this.updatedTime[name]) {
+      var curTime = new Date().getTime();
+      if (curTime - this.updatedTime[name] > this.lifetime) {
+        this.removeMarker(name);
+        this.emit('change');
+      } else {
+        var that = this;
+        setTimeout(function() {that.checkTime(name);}, 100);
+      }
+    }
+  };
   MarkerArrayClient.prototype.subscribe = function subscribe (){
     this.unsubscribe();
 
@@ -55355,6 +55369,16 @@ var MarkerArrayClient = /*@__PURE__*/(function (EventEmitter2) {
   MarkerArrayClient.prototype.processMessage = function processMessage (arrayMessage){
     arrayMessage.markers.forEach(function(message) {
       var key = message.ns + message.id;
+      var oldNode = this.markers[key];
+      if (oldNode) {
+        this.removeMarker(key);
+      }
+
+      if (this.lifetime) {
+        this.updatedTime[key] = new Date().getTime();
+        this.checkTime(key);
+      }
+
       if(message.action === 0) {
         var updated = false;
         if(key in this.markers) { // "MODIFY"
@@ -55401,6 +55425,9 @@ var MarkerArrayClient = /*@__PURE__*/(function (EventEmitter2) {
     }
   };
   MarkerArrayClient.prototype.removeMarker = function removeMarker (key) {
+    if (this.lifetime) {
+      this.removeTimestamp(key);
+    }
     var oldNode = this.markers[key];
     if(!oldNode) {
       return;
@@ -55411,6 +55438,11 @@ var MarkerArrayClient = /*@__PURE__*/(function (EventEmitter2) {
       child.dispose();
     });
     delete(this.markers[key]);
+  };
+  MarkerArrayClient.prototype.removeTimestamp = function removeTimestamp (key) {
+    if (this.updatedTime[key]) {
+      delete(this.updatedTime[key]);
+    }
   };
 
   return MarkerArrayClient;

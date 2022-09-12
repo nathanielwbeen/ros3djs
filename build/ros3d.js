@@ -55451,6 +55451,7 @@ var ROS3D = (function (exports, ROSLIB) {
 	   *   * tfClient - the TF client handle to use
 	   *   * rootObject (optional) - the root object to add the markers to
 	   *   * path (optional) - the base path to any meshes that will be loaded
+	   *   * lifetime (optional) - the lifetime of a marker
 	   */
 	  constructor(options) {
 	    super();
@@ -55460,12 +55461,27 @@ var ROS3D = (function (exports, ROSLIB) {
 	    this.tfClient = options.tfClient;
 	    this.rootObject = options.rootObject || new THREE.Object3D();
 	    this.path = options.path || '/';
+	    this.lifetime = options.lifetime || 0;
 
 	    // Markers that are displayed (Map ns+id--Marker)
 	    this.markers = {};
 	    this.rosTopic = undefined;
+	    this.updatedTime = {};
 
 	    this.subscribe();
+	  };
+
+	  checkTime(name){
+	    if (this.markers[name] && this.updatedTime[name]) {
+	      var curTime = new Date().getTime();
+	      if (curTime - this.updatedTime[name] > this.lifetime) {
+	        this.removeMarker(name);
+	        this.emit('change');
+	      } else {
+	        var that = this;
+	        setTimeout(function() {that.checkTime(name);}, 100);
+	      }
+	    }
 	  };
 
 	  subscribe(){
@@ -55484,6 +55500,16 @@ var ROS3D = (function (exports, ROSLIB) {
 	  processMessage(arrayMessage){
 	    arrayMessage.markers.forEach(function(message) {
 	      var key = message.ns + message.id;
+	      var oldNode = this.markers[key];
+	      if (oldNode) {
+	        this.removeMarker(key);
+	      }
+
+	      if (this.lifetime) {
+	        this.updatedTime[key] = new Date().getTime();
+	        this.checkTime(key);
+	      }
+
 	      if(message.action === 0) {
 	        var updated = false;
 	        if(key in this.markers) { // "MODIFY"
@@ -55532,6 +55558,9 @@ var ROS3D = (function (exports, ROSLIB) {
 	  };
 
 	  removeMarker(key) {
+	    if (this.lifetime) {
+	      this.removeTimestamp(key);
+	    }
 	    var oldNode = this.markers[key];
 	    if(!oldNode) {
 	      return;
@@ -55543,6 +55572,12 @@ var ROS3D = (function (exports, ROSLIB) {
 	    });
 	    delete(this.markers[key]);
 	  };
+
+	  removeTimestamp(key) {
+	    if (this.updatedTime[key]) {
+	      delete(this.updatedTime[key]);
+	    }
+	  }
 	}
 
 	/**
