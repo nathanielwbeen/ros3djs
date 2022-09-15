@@ -55472,6 +55472,7 @@ var ROS3D = (function (exports, ROSLIB) {
 	  };
 
 	  checkTime(name){
+	    console.log('checking time: ' + name);
 	    if ((name in this.markers) && (name in this.updatedTime)) {
 	      var curTime = new Date().getTime();
 	      if (curTime - this.updatedTime[name] > this.lifetime) {
@@ -55500,7 +55501,7 @@ var ROS3D = (function (exports, ROSLIB) {
 	  processMessage(arrayMessage){
 	    arrayMessage.markers.forEach(function(message) {
 	      var key = message.ns + message.id;
-	      console.log('processing msg' + key); // TODO: silly printf for checking my work
+	      console.log('processing msg: ' + key); // TODO: silly printf for checking my work
 	      var oldNode = this.markers[key];
 	      if (oldNode) {
 	        this.removeMarker(key);
@@ -55572,6 +55573,7 @@ var ROS3D = (function (exports, ROSLIB) {
 	      child.dispose();
 	    });
 	    delete(this.markers[key]);
+	    console.log('removed: ' + key);
 	  };
 
 	  removeTimestamp(key) {

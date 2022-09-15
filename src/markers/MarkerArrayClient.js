@@ -40,6 +40,7 @@ ROS3D.MarkerArrayClient = function(options) {
 ROS3D.MarkerArrayClient.prototype.__proto__ = EventEmitter2.prototype;
 
 ROS3D.MarkerArrayClient.prototype.checkTime = function(name){
+  console.log('checking time: ' + name);
   if ((name in this.markers) && (name in this.updatedTime)) {
     var curTime = new Date().getTime();
     if (curTime - this.updatedTime[name] > this.lifetime) {
@@ -68,7 +69,7 @@ ROS3D.MarkerArrayClient.prototype.subscribe = function(){
 ROS3D.MarkerArrayClient.prototype.processMessage = function(arrayMessage){
   arrayMessage.markers.forEach(function(message) {
     var key = message.ns + message.id;
-    console.log('processing msg' + key); // TODO: silly printf for checking my work
+    console.log('processing msg: ' + key); // TODO: silly printf for checking my work
     var oldNode = this.markers[key];
     if (oldNode) {
       this.removeMarker(key);
@@ -140,6 +141,7 @@ ROS3D.MarkerArrayClient.prototype.removeMarker = function(key) {
     child.dispose();
   });
   delete(this.markers[key]);
+  console.log('removed: ' + key);
 };
 
 ROS3D.MarkerArrayClient.prototype.removeTimestamp = function(key) {
