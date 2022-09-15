@@ -68,7 +68,7 @@ ROS3D.MarkerArrayClient.prototype.subscribe = function(){
 ROS3D.MarkerArrayClient.prototype.processMessage = function(arrayMessage){
   arrayMessage.markers.forEach(function(message) {
     var key = message.ns + message.id;
-    console.log("processing msg" + key); // TODO: silly printf for checking my work
+    console.log('processing msg' + key); // TODO: silly printf for checking my work
     var oldNode = this.markers[key];
     if (oldNode) {
       this.removeMarker(key);
@@ -146,4 +146,4 @@ ROS3D.MarkerArrayClient.prototype.removeTimestamp = function(key) {
   if (this.updatedTime[key]) {
     delete(this.updatedTime[key]);
   }
-}
+};
