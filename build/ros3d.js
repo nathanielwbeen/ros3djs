@@ -55498,10 +55498,6 @@ var ROS3D = (function (exports, ROSLIB) {
 	  processMessage(arrayMessage){
 	    arrayMessage.markers.forEach(function(message) {
 	      var key = message.ns + message.id;
-	      var oldNode = this.markers[key];
-	      if (oldNode) {
-	        this.removeMarker(key);
-	      }
 
 	      if (this.lifetime) {
 	        this.updatedTime[key] = new Date().getTime();
