@@ -43,6 +43,7 @@ ROS3D.MarkerArrayClient.prototype.checkTime = function(name){
   console.log('checking time: ' + name);
   if ((name in this.markers) && (name in this.updatedTime)) {
     var curTime = new Date().getTime();
+    console.log(curTime + ' - ' + this.updatedTime[name] + ' > ' + this.lifetime + ' ?');
     if (curTime - this.updatedTime[name] > this.lifetime) {
       this.removeMarker(name);
       this.emit('change');

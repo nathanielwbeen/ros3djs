@@ -55322,6 +55322,7 @@ var MarkerArrayClient = /*@__PURE__*/(function (EventEmitter2) {
     console.log('checking time: ' + name);
     if ((name in this.markers) && (name in this.updatedTime)) {
       var curTime = new Date().getTime();
+      console.log(curTime + ' - ' + this.updatedTime[name] + ' > ' + this.lifetime + ' ?');
       if (curTime - this.updatedTime[name] > this.lifetime) {
         this.removeMarker(name);
         this.emit('change');
