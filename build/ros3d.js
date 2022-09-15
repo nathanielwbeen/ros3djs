@@ -55473,16 +55473,14 @@ var ROS3D = (function (exports, ROSLIB) {
 
 	  checkTime(name){
 	    console.log('checking time: ' + name);
-	    if ((name in this.markers) && (name in this.updatedTime)) {
-	      var curTime = new Date().getTime();
-	      console.log(curTime + ' - ' + this.updatedTime[name] + ' > ' + this.lifetime + ' ?');
-	      if (curTime - this.updatedTime[name] > this.lifetime) {
-	        this.removeMarker(name);
-	        this.emit('change');
-	      } else {
-	        var that = this;
-	        setTimeout(function() {that.checkTime(name);}, 100);
-	      }
+	    var curTime = new Date().getTime();
+	    console.log(curTime + ' - ' + this.updatedTime[name] + ' > ' + this.lifetime + ' ?');
+	    if (curTime - this.updatedTime[name] > this.lifetime) {
+	      this.removeMarker(name);
+	      this.emit('change');
+	    } else {
+	      var that = this;
+	      setTimeout(function() {that.checkTime(name);}, 100);
 	    }
 	  };
 
@@ -55561,8 +55559,8 @@ var ROS3D = (function (exports, ROSLIB) {
 	  };
 
 	  removeMarker(key) {
-	    if (this.lifetime) {
-	      this.removeTimestamp(key);
+	    if (this.lifetime && key in this.updatedTime) {
+	      delete(this.updatedTime[key]);
 	    }
 	    var oldNode = this.markers[key];
 	    if(!oldNode) {
@@ -55575,12 +55573,6 @@ var ROS3D = (function (exports, ROSLIB) {
 	    });
 	    delete(this.markers[key]);
 	    console.log('removed: ' + key);
-	  };
-
-	  removeTimestamp(key) {
-	    if (this.updatedTime[key]) {
-	      delete(this.updatedTime[key]);
-	    }
 	  };
 	}
 
