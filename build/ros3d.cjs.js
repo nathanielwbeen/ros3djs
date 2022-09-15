@@ -55343,9 +55343,7 @@ var MarkerArrayClient = /*@__PURE__*/(function (EventEmitter2) {
   MarkerArrayClient.prototype = Object.create( EventEmitter2 && EventEmitter2.prototype );
   MarkerArrayClient.prototype.constructor = MarkerArrayClient;
   MarkerArrayClient.prototype.checkTime = function checkTime (name){
-    console.log('checking time: ' + name);
     var curTime = new Date().getTime();
-    console.log(curTime + ' - ' + this.updatedTime[name] + ' > ' + this.lifetime + ' ?');
     if (curTime - this.updatedTime[name] > this.lifetime) {
       this.removeMarker(name);
       this.emit('change');
@@ -55369,7 +55367,6 @@ var MarkerArrayClient = /*@__PURE__*/(function (EventEmitter2) {
   MarkerArrayClient.prototype.processMessage = function processMessage (arrayMessage){
     arrayMessage.markers.forEach(function(message) {
       var key = message.ns + message.id;
-      console.log('processing msg: ' + key); // TODO: silly printf for checking my work
       var oldNode = this.markers[key];
       if (oldNode) {
         this.removeMarker(key);
@@ -55439,7 +55436,6 @@ var MarkerArrayClient = /*@__PURE__*/(function (EventEmitter2) {
       child.dispose();
     });
     delete(this.markers[key]);
-    console.log('removed: ' + key);
   };
 
   return MarkerArrayClient;
