@@ -1,4 +1,5 @@
 /**
+ * @fileOverview
  * @author Jose Rojas - jrojas@redlinesolutions.co
  */
 
@@ -22,7 +23,7 @@ ROS3D.MeshLoader = {
    loaders: {
      'dae': function(meshRes, uri, options) {
        const material = options.material;
-       const loader = new THREE.ColladaLoader();
+       const loader = new THREE.ColladaLoader(options.loader);
        loader.log = function(message) {
          if (meshRes.warnings) {
            console.warn(message);
@@ -52,7 +53,7 @@ ROS3D.MeshLoader = {
 
      'obj': function(meshRes, uri, options) {
        const material = options.material;
-       const loader = new THREE.OBJLoader();
+       const loader = new THREE.OBJLoader(options.loader);
        loader.log = function(message) {
          if (meshRes.warnings) {
            console.warn(message);
@@ -61,7 +62,7 @@ ROS3D.MeshLoader = {
 
        //Reload the mesh again after materials have been loaded
        // @todo: this should be improved so that the file doesn't need to be
-       // reloaded however that would involve more changes within the OBJLoader.       
+       // reloaded however that would involve more changes within the OBJLoader.
        function onMaterialsLoaded(loader, materials) {
          loader.
          setMaterials(materials).
@@ -84,7 +85,7 @@ ROS3D.MeshLoader = {
            if (obj.materialLibraries.length) {
              // load the material libraries
              const materialUri = obj.materialLibraries[0];
-             new THREE.MTLLoader().setPath(baseUri).load(
+             new THREE.MTLLoader(options.loader).setPath(baseUri).load(
                materialUri,
                function(materials) {
                   materials.preload();
@@ -107,7 +108,7 @@ ROS3D.MeshLoader = {
 
      'stl': function(meshRes, uri, options) {
        const material = options.material;
-       const loader = new THREE.STLLoader();
+       const loader = new THREE.STLLoader(options.loader);
        {
          loader.load(uri,
                      function ( geometry ) {

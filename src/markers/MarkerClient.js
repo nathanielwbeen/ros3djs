@@ -1,4 +1,5 @@
 /**
+ * @fileOverview
  * @author Russell Toris - rctoris@wpi.edu
  */
 
@@ -39,16 +40,14 @@ ROS3D.MarkerClient.prototype.__proto__ = EventEmitter2.prototype;
 
 ROS3D.MarkerClient.prototype.unsubscribe = function(){
   if(this.rosTopic){
-    this.rosTopic.unsubscribe();
+    this.rosTopic.unsubscribe(this.processMessage);
   }
 };
 
 ROS3D.MarkerClient.prototype.checkTime = function(name){
     var curTime = new Date().getTime();
     if (curTime - this.updatedTime[name] > this.lifetime) {
-        var oldNode = this.markers[name];
-        oldNode.unsubscribeTf();
-        this.rootObject.remove(oldNode);
+        this.removeMarker(name);
         this.emit('change');
     } else {
         var that = this;
@@ -72,11 +71,12 @@ ROS3D.MarkerClient.prototype.subscribe = function(){
 
 ROS3D.MarkerClient.prototype.processMessage = function(message){
   // remove old marker from Three.Object3D children buffer
-  var oldNode = this.markers[message.ns + message.id];
-  this.updatedTime[message.ns + message.id] = new Date().getTime();
+  var key = message.ns + message.id;
+  var oldNode = this.markers[key];
+  this.updatedTime[key] = new Date().getTime();
   if (oldNode) {
-    oldNode.unsubscribeTf();
-    this.rootObject.remove(oldNode);
+    this.removeMarker(key);
+
   } else if (this.lifetime) {
     this.checkTime(message.ns + message.id);
   }
@@ -87,13 +87,26 @@ ROS3D.MarkerClient.prototype.processMessage = function(message){
       path : this.path,
     });
 
-    this.markers[message.ns + message.id] = new ROS3D.SceneNode({
+    this.markers[key] = new ROS3D.SceneNode({
       frameID : message.header.frame_id,
       tfClient : this.tfClient,
       object : newMarker
     });
-    this.rootObject.add(this.markers[message.ns + message.id]);
+    this.rootObject.add(this.markers[key]);
   }
 
   this.emit('change');
+};
+
+ROS3D.MarkerClient.prototype.removeMarker = function(key) {
+  var oldNode = this.markers[key];
+  if(!oldNode) {
+    return;
+  }
+  oldNode.unsubscribeTf();
+  this.rootObject.remove(oldNode);
+  oldNode.children.forEach(child => {
+    child.dispose();
+  });
+  delete(this.markers[key]);
 };
