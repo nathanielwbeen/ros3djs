@@ -55451,7 +55451,7 @@ var ROS3D = (function (exports, ROSLIB) {
 	   *   * tfClient - the TF client handle to use
 	   *   * rootObject (optional) - the root object to add the markers to
 	   *   * path (optional) - the base path to any meshes that will be loaded
-	   *   * lifetime (optional) - the lifetime of a marker
+	   *   * lifetime (optional) - the lifetime of a marker in ms
 	   */
 	  constructor(options) {
 	    super();
