@@ -19,6 +19,7 @@
  *   * tfClient - the TF client handle to use
  *   * rootObject (optional) - the root object to add the markers to
  *   * path (optional) - the base path to any meshes that will be loaded
+ *   * lifetime (optional) - the lifetime of a marker in ms
  */
 ROS3D.MarkerArrayClient = function(options) {
   options = options || {};
@@ -27,14 +28,27 @@ ROS3D.MarkerArrayClient = function(options) {
   this.tfClient = options.tfClient;
   this.rootObject = options.rootObject || new THREE.Object3D();
   this.path = options.path || '/';
+  this.lifetime = options.lifetime || 0;
 
   // Markers that are displayed (Map ns+id--Marker)
   this.markers = {};
   this.rosTopic = undefined;
+  this.updatedTime = {};
 
   this.subscribe();
 };
 ROS3D.MarkerArrayClient.prototype.__proto__ = EventEmitter2.prototype;
+
+ROS3D.MarkerArrayClient.prototype.checkTime = function(name){
+  var curTime = new Date().getTime();
+  if (curTime - this.updatedTime[name] > this.lifetime) {
+    this.removeMarker(name);
+    this.emit('change');
+  } else {
+    var that = this;
+    setTimeout(function() {that.checkTime(name);}, 100);
+  }
+};
 
 ROS3D.MarkerArrayClient.prototype.subscribe = function(){
   this.unsubscribe();
@@ -52,6 +66,12 @@ ROS3D.MarkerArrayClient.prototype.subscribe = function(){
 ROS3D.MarkerArrayClient.prototype.processMessage = function(arrayMessage){
   arrayMessage.markers.forEach(function(message) {
     var key = message.ns + message.id;
+
+    if (this.lifetime) {
+      this.updatedTime[key] = new Date().getTime();
+      this.checkTime(key);
+    }
+
     if(message.action === 0) {
       var updated = false;
       if(key in this.markers) { // "MODIFY"
@@ -100,6 +120,9 @@ ROS3D.MarkerArrayClient.prototype.unsubscribe = function(){
 };
 
 ROS3D.MarkerArrayClient.prototype.removeMarker = function(key) {
+  if (this.lifetime && key in this.updatedTime) {
+    delete(this.updatedTime[key]);
+  }
   var oldNode = this.markers[key];
   if(!oldNode) {
     return;
