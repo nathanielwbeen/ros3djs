@@ -52065,7 +52065,7 @@ var Marker = /*@__PURE__*/(function (superclass) {
       case MARKER_LINE_STRIP:
         var lineStripGeom = new THREE.Geometry();
         var lineStripMaterial = new THREE.LineBasicMaterial({
-          size : message.scale.x
+          linewidth : message.scale.x
         });
 
         // add the points
@@ -52096,7 +52096,7 @@ var Marker = /*@__PURE__*/(function (superclass) {
       case MARKER_LINE_LIST:
         var lineListGeom = new THREE.Geometry();
         var lineListMaterial = new THREE.LineBasicMaterial({
-          size : message.scale.x
+          linewidth : message.scale.x
         });
 
         // add the points
