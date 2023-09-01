@@ -66,7 +66,7 @@ ROS3D.MarkerClient.prototype.subscribe = function(){
     messageType : 'visualization_msgs/Marker',
     compression : 'png'
   });
-  this.rosTopic.subscribe(this.processMessage.bind(this));
+  this.rosTopic.subscribe(() => this.processMessage);
 };
 
 ROS3D.MarkerClient.prototype.processMessage = function(message){
