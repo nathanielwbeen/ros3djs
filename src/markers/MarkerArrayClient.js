@@ -60,7 +60,7 @@ ROS3D.MarkerArrayClient.prototype.subscribe = function(){
     messageType : 'visualization_msgs/MarkerArray',
     compression : 'png'
   });
-  this.rosTopic.subscribe(this.processMessage.bind(this));
+  this.rosTopic.subscribe(() => this.processMessage);
 };
 
 ROS3D.MarkerArrayClient.prototype.processMessage = function(arrayMessage){
