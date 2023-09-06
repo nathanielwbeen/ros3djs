@@ -55492,7 +55492,7 @@ var ROS3D = (function (exports, ROSLIB) {
 	      messageType : 'visualization_msgs/MarkerArray',
 	      compression : 'png'
 	    });
-	    this.rosTopic.subscribe(this.processMessage.bind(this));
+	    this.rosTopic.subscribe(() => this.processMessage);
 	  };
 
 	  processMessage(arrayMessage){
@@ -55638,7 +55638,7 @@ var ROS3D = (function (exports, ROSLIB) {
 	      messageType : 'visualization_msgs/Marker',
 	      compression : 'png'
 	    });
-	    this.rosTopic.subscribe(this.processMessage.bind(this));
+	    this.rosTopic.subscribe(() => this.processMessage);
 	  };
 
 	  processMessage(message){

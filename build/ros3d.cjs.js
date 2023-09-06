@@ -55353,6 +55353,8 @@ var MarkerArrayClient = /*@__PURE__*/(function (EventEmitter2) {
     }
   };
   MarkerArrayClient.prototype.subscribe = function subscribe (){
+    var this$1$1 = this;
+
     this.unsubscribe();
 
     // subscribe to MarkerArray topic
@@ -55362,7 +55364,7 @@ var MarkerArrayClient = /*@__PURE__*/(function (EventEmitter2) {
       messageType : 'visualization_msgs/MarkerArray',
       compression : 'png'
     });
-    this.rosTopic.subscribe(this.processMessage.bind(this));
+    this.rosTopic.subscribe(function () { return this$1$1.processMessage; });
   };
   MarkerArrayClient.prototype.processMessage = function processMessage (arrayMessage){
     arrayMessage.markers.forEach(function(message) {
@@ -55481,6 +55483,8 @@ var MarkerClient = /*@__PURE__*/(function (EventEmitter2) {
       }
   };
   MarkerClient.prototype.subscribe = function subscribe (){
+    var this$1$1 = this;
+
     this.unsubscribe();
 
     // subscribe to the topic
@@ -55490,7 +55494,7 @@ var MarkerClient = /*@__PURE__*/(function (EventEmitter2) {
       messageType : 'visualization_msgs/Marker',
       compression : 'png'
     });
-    this.rosTopic.subscribe(this.processMessage.bind(this));
+    this.rosTopic.subscribe(function () { return this$1$1.processMessage; });
   };
   MarkerClient.prototype.processMessage = function processMessage (message){
     // remove old marker from Three.Object3D children buffer
