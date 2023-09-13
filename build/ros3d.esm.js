@@ -55447,13 +55447,20 @@ var MarkerClient = /*@__PURE__*/(function (EventEmitter2) {
     this.rootObject = options.rootObject || new THREE.Object3D();
     this.path = options.path || '/';
     this.lifetime = options.lifetime || 0;
+    this.debounceMs = options.debounceMs || 0;
+
+    this.debounceTimer = null;
 
     // Markers that are displayed (Map ns+id--Marker)
     this.markers = {};
     this.rosTopic = undefined;
     this.updatedTime = {};
 
-    this.boundProcessMessage = this.processMessage.bind(this);
+    if (this.debounceMs > 0) {
+      this.boundProcessMessage = this.debouncedProcessMessage();
+    } else {
+      this.boundProcessMessage = this.processMessage.bind(this);
+    }
 
     this.subscribe();
   }
@@ -55488,6 +55495,16 @@ var MarkerClient = /*@__PURE__*/(function (EventEmitter2) {
       compression : 'png'
     });
     this.rosTopic.subscribe(this.boundProcessMessage);
+  };
+  MarkerClient.prototype.debouncedProcessMessage = function debouncedProcessMessage (){
+    var this$1$1 = this;
+
+    return function (message) {
+      if (this$1$1.debounceTimer){ return; }
+
+      this$1$1.processMessage(message);
+      this$1$1.debounceTimer = setTimeout(function () { return this$1$1.debounceTimer = null; }, this$1$1.debounceMs);
+    };
   };
   MarkerClient.prototype.processMessage = function processMessage (message){
     // remove old marker from Three.Object3D children buffer
