@@ -55316,7 +55316,7 @@ var MarkerArrayClient = /*@__PURE__*/(function (EventEmitter2) {
     this.updatedTime = {};
 
     if (this.debounceMs > 0) {
-      this.boundProcessMessage = this.debouncedProcessMessage.bind(this);
+      this.boundProcessMessage = this.debouncedProcessMessage();
     } else {
       this.boundProcessMessage = this.processMessage.bind(this);
     }
