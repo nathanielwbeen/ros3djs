@@ -55452,6 +55452,7 @@ var ROS3D = (function (exports, ROSLIB) {
 	   *   * rootObject (optional) - the root object to add the markers to
 	   *   * path (optional) - the base path to any meshes that will be loaded
 	   *   * lifetime (optional) - the lifetime of a marker in ms
+	   *   * debounceMs (optional) - add a leading edge debounce to incoming messages. After processing a message, this will discard all messages until the given time (in ms) has passed.
 	   */
 	  constructor(options) {
 	    super();
@@ -55462,13 +55463,20 @@ var ROS3D = (function (exports, ROSLIB) {
 	    this.rootObject = options.rootObject || new THREE.Object3D();
 	    this.path = options.path || '/';
 	    this.lifetime = options.lifetime || 0;
+	    this.debounceMs = options.debounceMs || 0;
+
+	    this.debounceTimer = null;
 
 	    // Markers that are displayed (Map ns+id--Marker)
 	    this.markers = {};
 	    this.rosTopic = undefined;
 	    this.updatedTime = {};
 
-	    this.boundProcessMessage = this.processMessage.bind(this);
+	    if (this.debounceMs > 0) {
+	      this.boundProcessMessage = this.debouncedProcessMessage.bind(this);
+	    } else {
+	      this.boundProcessMessage = this.processMessage.bind(this);
+	    }
 
 	    this.subscribe();
 	  };
@@ -55495,6 +55503,15 @@ var ROS3D = (function (exports, ROSLIB) {
 	      compression : 'png'
 	    });
 	    this.rosTopic.subscribe(this.boundProcessMessage);
+	  };
+
+	  debouncedProcessMessage(){
+	    return (arrayMessage) => {
+	      if (this.debounceTimer){ return; }
+
+	      this.processMessage(arrayMessage);
+	      this.debounceTimer = setTimeout(() => this.debounceTimer = null, this.debounceMs);
+	    };
 	  };
 
 	  processMessage(arrayMessage){
