@@ -55468,6 +55468,8 @@ var ROS3D = (function (exports, ROSLIB) {
 	    this.rosTopic = undefined;
 	    this.updatedTime = {};
 
+	    this.boundProcessMessage = this.processMessage.bind(this);
+
 	    this.subscribe();
 	  };
 
@@ -55492,7 +55494,7 @@ var ROS3D = (function (exports, ROSLIB) {
 	      messageType : 'visualization_msgs/MarkerArray',
 	      compression : 'png'
 	    });
-	    this.rosTopic.subscribe(this.processMessage.bind(this));
+	    this.rosTopic.subscribe(this.boundProcessMessage);
 	  };
 
 	  processMessage(arrayMessage){
@@ -55547,7 +55549,7 @@ var ROS3D = (function (exports, ROSLIB) {
 
 	  unsubscribe(){
 	    if(this.rosTopic){
-	      this.rosTopic.unsubscribe(this.processMessage);
+	      this.rosTopic.unsubscribe(this.boundProcessMessage);
 	    }
 	  };
 
@@ -55607,12 +55609,14 @@ var ROS3D = (function (exports, ROSLIB) {
 	    this.rosTopic = undefined;
 	    this.updatedTime = {};
 
+	    this.boundProcessMessage = this.processMessage.bind(this);
+
 	    this.subscribe();
 	  };
 
 	  unsubscribe(){
 	    if(this.rosTopic){
-	      this.rosTopic.unsubscribe(this.processMessage);
+	      this.rosTopic.unsubscribe(this.boundProcessMessage);
 	    }
 	  };
 
@@ -55638,7 +55642,7 @@ var ROS3D = (function (exports, ROSLIB) {
 	      messageType : 'visualization_msgs/Marker',
 	      compression : 'png'
 	    });
-	    this.rosTopic.subscribe(this.processMessage.bind(this));
+	    this.rosTopic.subscribe(this.boundProcessMessage);
 	  };
 
 	  processMessage(message){
