@@ -22,7 +22,7 @@
  *   * lifetime (optional) - the lifetime of a marker in ms
  *   * debounceMs (optional) - add a leading edge debounce to incoming messages. After processing a message, this will discard all messages until the given time (in ms) has passed.
  */
-ROS3D.MarkerArrayClient = function(options) {
+ ROS3D.MarkerArrayClient = function(options) {
   options = options || {};
   this.ros = options.ros;
   this.topicName = options.topic;
@@ -40,7 +40,7 @@ ROS3D.MarkerArrayClient = function(options) {
   this.updatedTime = {};
 
   if (this.debounceMs > 0) {
-    this.boundProcessMessage = this.debouncedProcessMessage.bind(this);
+    this.boundProcessMessage = this.debouncedProcessMessage();
   } else {
     this.boundProcessMessage = this.processMessage.bind(this);
   }
