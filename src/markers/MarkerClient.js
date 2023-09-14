@@ -39,7 +39,7 @@ ROS3D.MarkerClient = function(options) {
   this.updatedTime = {};
 
   if (this.debounceMs > 0) {
-    this.boundProcessMessage = this.debouncedProcessMessage();
+    this.boundProcessMessage = this.debouncedProcessMessage.bind(this);
   } else {
     this.boundProcessMessage = this.processMessage.bind(this);
   }
@@ -79,13 +79,11 @@ ROS3D.MarkerClient.prototype.subscribe = function(){
   this.rosTopic.subscribe(this.boundProcessMessage);
 };
 
-ROS3D.MarkerClient.prototype.debouncedProcessMessage = function(){
-  return (message) => {
-    if (this.debounceTimer){ return; }
+ROS3D.MarkerClient.prototype.debouncedProcessMessage = function(arrayMessage){
+  if (this.debounceTimer){ return; }
 
-    this.processMessage(message);
-    this.debounceTimer = setTimeout(() => this.debounceTimer = null, this.debounceMs);
-  };
+  this.processMessage(arrayMessage);
+  this.debounceTimer = setTimeout(() => this.debounceTimer = null, this.debounceMs);
 };
 
 ROS3D.MarkerClient.prototype.processMessage = function(message){
